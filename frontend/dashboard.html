@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit Pulse Dashboard</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Ensure this points to your CSS file -->
+</head>
+<body>
+    <div class="container">
+        <!-- Side Panel -->
+        <nav class="side-panel">
+            <h2>Profit Pulse</h2>
+            <button onclick="showPage('dashboard')" class="active">
+                <span class="icon">🏠</span> Dashboard
+            </button>
+            <button onclick="showPage('community')">
+                <span class="icon">💬</span> Community
+            </button>
+            <button onclick="showPage('practice-zone')">
+                <span class="icon">📊</span> Practice Zone
+            </button>
+            <button onclick="showPage('tutorial')">
+                <span class="icon">📘</span> Tutorial
+            </button>
+            <button onclick="showPage('account')">
+                <span class="icon">👤</span> Account
+            </button>
+            <button onclick="showPage('settings')">
+                <span class="icon">⚙️</span> Settings
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <header>
+                <h1>Dashboard</h1>
+                <div class="header-right">
+                    <input type="text" placeholder="Search Here">
+                    <span class="icon">🔔</span>
+                    <span class="icon">👤</span>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <div class="dashboard-content">
+                    <div class="graph">
+                        <h2>S&P 500</h2>
+                        <p>4,472.16 +32.90 [+0.74%]</p>
+                    </div>
+                    
+                    <!-- News Cards Section -->
+                    <div class="articles" id="news-cards">
+                        <div class="article-card">
+                            <h3 id="news-title-1">Loading news...</h3>
+                            <p id="news-desc-1">Loading description...</p>
+                            <p><a id="news-link-1" href="#" target="_blank">Read more</a></p>
+                        </div>
+                        <div class="article-card">
+                            <h3 id="news-title-2">Loading news...</h3>
+                            <p id="news-desc-2">Loading description...</p>
+                            <p><a id="news-link-2" href="#" target="_blank">Read more</a></p>
+                        </div>
+                        <div class="article-card">
+                            <h3 id="news-title-3">Loading news...</h3>
+                            <p id="news-desc-3">Loading description...</p>
+                            <p><a id="news-link-3" href="#" target="_blank">Read more</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tutorials Page with Flashcard Component -->
+            <div id="tutorial" class="page">
+                <h1>Market Insights</h1>
+                <div class="flashcard-container" id="flashcard" onclick="nextFlashcardInteractive(event)">
+                    <div class="flashcard-content" id="flashcard-content">
+                        Unlock steady growth by diversifying across sectors.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to Show and Hide Pages
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Show the selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Remove 'active' class from all buttons
+            document.querySelectorAll('.side-panel button').forEach(button => {
+                button.classList.remove('active');
+            });
+            // Add 'active' class to the clicked button
+            document.querySelector(`button[onclick="showPage('${pageId}')"]`).classList.add('active');
+        }
+
+        // News Loading Functionality
+        async function loadNews() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/news');
+                const news = await response.json();
+
+                for (let i = 0; i < news.length; i++) {
+                    document.getElementById(`news-title-${i + 1}`).innerText = news[i].title;
+                    document.getElementById(`news-desc-${i + 1}`).innerText = news[i].description;
+                    document.getElementById(`news-link-${i + 1}`).href = news[i].link;
+                }
+            } catch (error) {
+                console.error("Error fetching news:", error);
+            }
+        }
+
+        // Call loadNews only once to populate the news section
+        loadNews();
+
+        // Flashcard Functionality for Tutorial Section
+        const flashcards = [
+            "Unlock steady growth by diversifying across sectors.",
+            "Stay invested for the long term to weather market volatility.",
+            "Look for companies with solid fundamentals for sustained returns.",
+            "Balance your portfolio to manage risk effectively.",
+            "Stay informed on market trends, but keep a clear strategy."
+        ];
+        let currentFlashcardIndex = 0;
+
+        function showFlashcard(index) {
+            const flashcardContent = document.getElementById("flashcard-content");
+            flashcardContent.style.opacity = "0"; // Fade-out effect
+            setTimeout(() => {
+                flashcardContent.innerText = flashcards[index];
+                flashcardContent.style.opacity = "1"; // Fade-in effect
+            }, 200);
+        }
+
+        function nextFlashcardInteractive(event) {
+            const flashcardWidth = event.target.offsetWidth;
+            const clickPosition = event.clientX - event.target.getBoundingClientRect().left;
+
+            if (clickPosition > flashcardWidth / 2) {
+                // Right side click - move forward
+                currentFlashcardIndex = (currentFlashcardIndex + 1) % flashcards.length;
+            } else {
+                // Left side click - move backward
+                currentFlashcardIndex = (currentFlashcardIndex - 1 + flashcards.length) % flashcards.length;
+            }
+
+            showFlashcard(currentFlashcardIndex);
+        }
+
+        // Initialize the first flashcard on load
+        document.addEventListener("DOMContentLoaded", () => {
+            showFlashcard(currentFlashcardIndex);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+console.log("Community platform script loaded");
